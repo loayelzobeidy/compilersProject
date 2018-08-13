@@ -1,0 +1,179 @@
+import java_cup.runtime.Symbol;
+%%
+%class Lexer
+%implements java_cup.runtime.Scanner
+%function next_token
+%type java_cup.runtime.Symbol
+
+%eofval{
+  return new Symbol(sym.EOF, null);
+%eofval}
+
+%{
+int x =0;
+int y=0;
+boolean inc = true;
+%}
+
+KEYWORD=import|from|if|else|try|except
+CLASS=class
+SYSTEM=System
+ALPHA=[A-Za-z]
+DIGIT=[0-9]
+ALPHA_NUMERIC={ALPHA}|{DIGIT}
+Func =def|print|range|append|str|int
+LOOP=for|while
+FULL_COMMENT=\"\" ({STRING})
+COMMENTS="#"{NOSLASHQUOTE}*[^\n]* \n
+NUMBER={DIGIT}+("."{DIGIT}+)(E[+-]?{DIGIT}+)?
+INTEGER = {DIGIT}+
+FOUR_TAB=({INDENT_TAB}{INDENT_TAB}{INDENT_TAB}{INDENT_TAB})+
+INDENT_TAB=([\ ])
+DETENT=\n (([\b])([\b])([\b])([\b]))+
+WHITE_SPACE=([\ \f\r\b])+
+NOSLASHQUOTE = [^\"]
+STRING = \"{NOSLASHQUOTE}*\"|\'{NOSLASHSINGLE}*\'
+NOSLASHSINGLE = [^\']
+Under="_"
+BOOL=True|False
+SevUnder={Under}({Under})*
+COMP_OP= <|>|==|>=|<=|<>|!=|in|not|is|is{WHITE_SPACE}not|not{WHITE_SPACE}in
+LOG_OP ="or"|"and"|"&"|"^"
+ID = {ALPHA}({ALPHA}|{DIGIT})*
+IDwithUnder={Under}*{ID}{Under}*|{ID}{Under}{ID}
+
+%%
+
+<YYINITIAL> {FULL_COMMENT} {
+    return new Symbol(sym.FULL_COMMENT, yytext());
+}
+<YYINITIAL> {COMMENTS} {
+    return new Symbol(sym.COMMENTS, yytext());
+}
+<YYINITIAL> {FOUR_TAB} {
+if(yytext().length()>=x){
+x=yytext().length();
+  return new Symbol(sym.FOUR_TAB, yytext().length()/4);
+  }
+  else{
+  x=yytext().length();
+  return new Symbol(sym.DETENT, yytext().length()/4);
+  }
+
+}
+<YYINITIAL> {DETENT} { }
+<YYINITIAL> {WHITE_SPACE} {}
+<YYINITIAL> {BOOL} {
+    return new Symbol(sym.BOOL, yytext());
+}
+<YYINITIAL> {KEYWORD} {
+  return new Symbol(sym.KEYWORD, yytext());
+}
+<YYINITIAL> {COMP_OP} {
+  return new Symbol(sym.COMP_OP, yytext());
+}
+<YYINITIAL> {LOG_OP} {
+  return new Symbol(sym.LOG_OP, yytext());
+}
+<YYINITIAL> {CLASS} {
+  return new Symbol(sym.CLASS, yytext());
+}
+
+
+<YYINITIAL> {SYSTEM} {
+  return new Symbol(sym.SYSTEM, yytext());
+}
+
+<YYINITIAL> {Under} {
+  return new Symbol(sym.Under, yytext());
+}
+<YYINITIAL> {LOOP} {
+  return new Symbol(sym.LOOP, yytext());
+}
+<YYINITIAL> {Func} {
+  return new Symbol(sym.Func, yytext());
+}
+<YYINITIAL> {IDwithUnder} {
+  return new Symbol(sym.IDwithUnder, yytext());
+}
+<YYINITIAL> {ID} {
+  return new Symbol(sym.ID, yytext());
+}
+
+<YYINITIAL> {NUMBER} {
+  return new Symbol(sym.NUMBER, yytext());
+}
+
+<YYINITIAL> {INTEGER} {
+  return new Symbol(sym.INTEGER, yytext());
+}
+
+<YYINITIAL> {STRING} {
+  return new Symbol(sym.STRING, yytext());
+}
+
+<YYINITIAL> "." {
+  return new Symbol(sym.DO, yytext());
+}
+
+<YYINITIAL> "+" {
+  return new Symbol(sym.PO, yytext());
+}
+<YYINITIAL> "-" {
+  return new Symbol(sym.MO, yytext());
+}
+<YYINITIAL> "*" {
+  return new Symbol(sym.MB, yytext());
+}
+<YYINITIAL> "/" {
+  return new Symbol(sym.DB, yytext());
+}
+<YYINITIAL> "<" {
+  return new Symbol(sym.LT, yytext());
+}
+<YYINITIAL> ">" {
+  return new Symbol(sym.GT, yytext());
+}
+<YYINITIAL> "==" {
+  return new Symbol(sym.EQ, yytext());
+}
+<YYINITIAL> "{" {
+  return new Symbol(sym.LC, yytext());
+}
+<YYINITIAL> "}" {
+  return new Symbol(sym.RC, yytext());
+}
+<YYINITIAL> "(" {
+  return new Symbol(sym.LP, yytext());
+}
+<YYINITIAL> ")" {
+  return new Symbol(sym.RB, yytext());
+}
+<YYINITIAL> "," {
+  return new Symbol(sym.FA, yytext());
+}
+
+<YYINITIAL> "[]" {
+  return new Symbol(sym.AA, yytext());
+}
+<YYINITIAL> "[" {
+  return new Symbol(sym.LS, yytext());
+}
+<YYINITIAL> "]" {
+  return new Symbol(sym.RS, yytext());
+}
+<YYINITIAL> ":" {
+  return new Symbol(sym.CL, ":");
+}
+
+<YYINITIAL> ";" { 
+  return new Symbol(sym.SM, ";"); 
+}
+
+<YYINITIAL> "=" { 
+  return new Symbol(sym.AO, "="); 
+}
+
+<YYINITIAL> . { 
+  return new Symbol(sym.error, yytext()); 
+}

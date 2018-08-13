@@ -1,0 +1,50 @@
+import java_cup.runtime.*;
+import java.io.*;
+import java.util.*;
+
+	
+/* Terminals (tokens returned by the scanner). */
+terminal			AO,DETENT,BOOL,CL,FOUR_TAB, SM, KEYWORD, CLASS, SYSTEM, LOOP, Func, FULL_COMMENT, COMMENTS,COMP_OP,LOG_OP, Under, IDwithUnder,NUMBER,INTEGER,STRING,DO,MO,PO,MB,DB,LT,GT,EQ,LC,RC,LP,RB,FA,AA,LS,RS,CM;
+
+
+/* Non-terminals */
+nonterminal	Boolean		program, statement, list, function;
+
+/* The grammar */
+
+
+program ::= program:p statement:e
+			{:RESULT = p && e;:}
+			| {:RESULT = true;:};
+
+list ::= IDwithUnder
+         {:RESULT = true;:}
+         | IDwithUnder FA list
+         {:RESULT = true;:};
+
+function ::= Func LP IDwithUnder RB
+            {:RESULT = true;:}
+            |Func LP STRING RB
+            {:RESULT = true;:}
+            |IDwithUnder LP RB
+             {:RESULT = true;:}
+             |IDwithUnder LP IDwithUnder RB
+              {:RESULT = true;:}
+              |IDwithUnder LP STRING RB
+              {:RESULT = true;:};
+
+statement ::= IDwithUnder AO INTEGER
+			  {:RESULT = true;:}
+			  | IDwithUnder AO STRING
+              {:RESULT = true;:}
+              | IDwithUnder AO AA
+               {:RESULT = true;:}
+              | IDwithUnder AO list:l
+              {:RESULT = true && l;:}
+              | IDwithUnder AO BOOL
+              {:RESULT = true;:}
+              |function:f
+              {:RESULT=f; :}
+			  | error
+			  {:RESULT = false;:}
+			  ;
